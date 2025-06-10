@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   FlatList,
@@ -13,11 +13,25 @@ import { Card } from "../../components/Card";
 import { NewsArticle } from "../../services/api";
 import { useRouter } from "expo-router";
 import { useFavoritesContext } from "../favorites/favorites.context";
+import Toast from "react-native-toast-message";
 
 export const NewsList: React.FC = () => {
   const router = useRouter();
-  const { data, isLoading, error, refetch } = useNews();
+  const [page, setPage] = useState(1);
+  const { data, isLoading, error, refetch, hasMore } = useNews(page);
   const { toggleFavorite, isFavorite } = useFavoritesContext();
+
+  const handleFavoritePress = (article: NewsArticle) => {
+    toggleFavorite(article);
+    Toast.show({
+      type: isFavorite(article) ? "info" : "success",
+      text1: isFavorite(article)
+        ? "Removed from favorites"
+        : "Added to favorites",
+      position: "bottom",
+      visibilityTime: 2000,
+    });
+  };
 
   const handleArticlePress = (article: NewsArticle) => {
     router.push({
@@ -29,7 +43,18 @@ export const NewsList: React.FC = () => {
     });
   };
 
-  if (isLoading && !data) {
+  const handleLoadMore = useCallback(() => {
+    if (!isLoading && hasMore) {
+      setPage((prev) => prev + 1);
+    }
+  }, [isLoading, hasMore]);
+
+  const handleRefresh = useCallback(() => {
+    setPage(1);
+    refetch();
+  }, [refetch]);
+
+  if (isLoading && !data && page === 1) {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" />
@@ -38,7 +63,7 @@ export const NewsList: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (error && page === 1) {
     return (
       <View style={styles.centered}>
         <Text style={styles.errorText}>
@@ -47,7 +72,7 @@ export const NewsList: React.FC = () => {
         </Text>
         <Pressable
           style={styles.retryButton}
-          onPress={() => refetch()}
+          onPress={handleRefresh}
           accessibilityRole="button"
           accessibilityLabel="Retry loading news"
         >
@@ -65,18 +90,31 @@ export const NewsList: React.FC = () => {
           article={item}
           onPress={handleArticlePress}
           isFavorite={isFavorite(item)}
-          onFavoritePress={() => toggleFavorite(item)}
+          onFavoritePress={() => handleFavoritePress(item)}
         />
       )}
       keyExtractor={(item) => item.title}
       refreshControl={
-        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+        <RefreshControl
+          refreshing={isLoading && page === 1}
+          onRefresh={handleRefresh}
+        />
       }
+      onEndReached={handleLoadMore}
+      onEndReachedThreshold={0.5}
       contentContainerStyle={styles.listContent}
       ListEmptyComponent={
         <View style={styles.centered}>
           <Text style={styles.emptyText}>There are no news available</Text>
         </View>
+      }
+      ListFooterComponent={
+        isLoading && page > 1 ? (
+          <View style={styles.footerLoader}>
+            <ActivityIndicator size="small" />
+            <Text style={styles.loadingText}>Loading more...</Text>
+          </View>
+        ) : null
       }
     />
   );
@@ -115,5 +153,9 @@ const styles = StyleSheet.create({
   retryButtonText: {
     color: "white",
     fontWeight: "bold",
+  },
+  footerLoader: {
+    paddingVertical: 16,
+    alignItems: "center",
   },
 });

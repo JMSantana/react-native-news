@@ -2,6 +2,7 @@ import { Tabs } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
 import { FavoritesProvider } from "../src/features/favorites/favorites.context";
+import Toast from "react-native-toast-message";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,15 @@ export default function RootLayout() {
             }}
           />
           <Tabs.Screen
+            name="sports/live-matches"
+            options={{
+              title: "Live Matches",
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="football-outline" size={size} color={color} />
+              ),
+            }}
+          />
+          <Tabs.Screen
             name="news"
             options={{
               href: null, // Hides the tab from the tab bar
@@ -48,6 +58,7 @@ export default function RootLayout() {
             }}
           />
         </Tabs>
+        <Toast />
       </FavoritesProvider>
     </QueryClientProvider>
   );

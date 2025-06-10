@@ -125,7 +125,7 @@ describe("useNews", () => {
     );
 
     expect(result.current.error?.message).toBe("No news data available");
-    expect(result.current.data).toBeUndefined();
+    expect(result.current.data).toEqual([]);
   });
 
   it("should retry failed requests", async () => {
