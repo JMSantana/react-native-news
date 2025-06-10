@@ -35,6 +35,3 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
-
-# expo will create this folder
-app/

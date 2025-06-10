@@ -1,8 +1,10 @@
 export interface NewsArticle {
-  title: string;
   competition: string;
-  thumbnail: string;
+  competitionUrl: string;
   date: string;
+  matchviewUrl: string;
+  thumbnail: string;
+  title: string;
   videos: {
     embed: string;
   }[];
@@ -18,7 +20,7 @@ export interface NewsResponse {
 // This endpoint is deprecated, I'm gonna use it, but watch out for the warning message.
 const URL = "https://www.scorebat.com/video-api/v3";
 
-// This is tne new endpoint, but it needs a token to work. I'm gonna use the deprecated one for now.
+// This is tne new endpoint, but it needs a token to work. I'm gonna use the deprecated one to make it work publicly.
 // const URL = "https://www.scorebat.com/video-api/v3/feed/";
 
 export const fetchNews = async (): Promise<NewsArticle[]> => {

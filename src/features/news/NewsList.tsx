@@ -12,10 +12,12 @@ import { useNews } from "./useNews";
 import { Card } from "../../components/Card";
 import { NewsArticle } from "../../services/api";
 import { useRouter } from "expo-router";
+import { useFavoritesContext } from "../favorites/favorites.context";
 
 export const NewsList: React.FC = () => {
   const router = useRouter();
   const { data, isLoading, error, refetch } = useNews();
+  const { toggleFavorite, isFavorite } = useFavoritesContext();
 
   const handleArticlePress = (article: NewsArticle) => {
     router.push({
@@ -62,7 +64,8 @@ export const NewsList: React.FC = () => {
         <Card
           article={item}
           onPress={handleArticlePress}
-          onFavoritePress={() => {}}
+          isFavorite={isFavorite(item)}
+          onFavoritePress={() => toggleFavorite(item)}
         />
       )}
       keyExtractor={(item) => item.title}
