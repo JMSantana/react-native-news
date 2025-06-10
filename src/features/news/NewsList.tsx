@@ -21,19 +21,24 @@ export const NewsList: React.FC = () => {
   const { data, isLoading, error, refetch, hasMore } = useNews(page);
   const { toggleFavorite, isFavorite } = useFavoritesContext();
 
+  // Handle favorite toggle with visual feedback
   const handleFavoritePress = (article: NewsArticle) => {
     toggleFavorite(article);
+    // Show a toast message to confirm the action
     Toast.show({
       type: isFavorite(article) ? "info" : "success",
       text1: isFavorite(article)
         ? "Removed from favorites"
         : "Added to favorites",
       position: "bottom",
-      visibilityTime: 2000,
+      visibilityTime: 2000, // 2 seconds should be enough for users to notice
     });
   };
 
+  // Navigate to article details
   const handleArticlePress = (article: NewsArticle) => {
+    // We're passing the full article as a param to avoid another API call
+    // This might need to be optimized if articles get too large
     router.push({
       pathname: "/news/[id]",
       params: {
@@ -43,17 +48,20 @@ export const NewsList: React.FC = () => {
     });
   };
 
+  // Load more articles when reaching the end of the list
   const handleLoadMore = useCallback(() => {
     if (!isLoading && hasMore) {
       setPage((prev) => prev + 1);
     }
   }, [isLoading, hasMore]);
 
+  // Reset pagination and refetch data
   const handleRefresh = useCallback(() => {
     setPage(1);
     refetch();
   }, [refetch]);
 
+  // Show loading state only on initial load
   if (isLoading && !data && page === 1) {
     return (
       <View style={styles.centered}>
@@ -63,6 +71,7 @@ export const NewsList: React.FC = () => {
     );
   }
 
+  // Show error state with retry option
   if (error && page === 1) {
     return (
       <View style={styles.centered}>
@@ -101,7 +110,7 @@ export const NewsList: React.FC = () => {
         />
       }
       onEndReached={handleLoadMore}
-      onEndReachedThreshold={0.5}
+      onEndReachedThreshold={0.5} // Start loading more when user is halfway through the list
       contentContainerStyle={styles.listContent}
       ListEmptyComponent={
         <View style={styles.centered}>
@@ -120,6 +129,8 @@ export const NewsList: React.FC = () => {
   );
 };
 
+// Styles are kept simple and focused on functionality
+// TODO: Consider moving to a theme file if we add dark mode
 const styles = StyleSheet.create({
   centered: {
     flex: 1,

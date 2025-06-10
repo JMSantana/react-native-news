@@ -103,7 +103,9 @@ describe("useNews", () => {
       { timeout: 10000 }
     );
 
-    expect(result.current.error?.message).toBe("No news data available");
+    expect(result.current.error?.message).toBe(
+      "No news available at the moment. Please try again later."
+    );
   });
 
   it("should handle fetch error", async () => {
@@ -124,7 +126,9 @@ describe("useNews", () => {
       { timeout: 10000 }
     );
 
-    expect(result.current.error?.message).toBe("No news data available");
+    expect(result.current.error?.message).toBe(
+      "No news available at the moment. Please try again later."
+    );
     expect(result.current.data).toEqual([]);
   });
 
